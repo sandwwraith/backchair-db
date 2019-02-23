@@ -9,8 +9,6 @@ actual class Sample {
 
 actual object Platform {
     actual val name: String = "Native"
-
-
 }
 
 actual fun readLine(): String? = kotlin.io.readLine()

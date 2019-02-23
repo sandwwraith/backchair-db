@@ -1,5 +1,6 @@
 package dev.sandwwraith
 
+import dev.sandwwraith.model.User
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -9,10 +9,6 @@ actual class Sample {
 
 actual object Platform {
     actual val name: String = "JVM"
-
-    fun f() {
-        measureTimeMillis {  }
-    }
 }
 
 actual fun readLine(): String? = kotlin.io.readLine()

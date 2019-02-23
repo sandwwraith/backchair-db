@@ -1,6 +1,7 @@
 package dev.sandwwraith
 
 import dev.sandwwraith.StatementCompiler.compile
+import dev.sandwwraith.model.User
 import sample.readLine
 
 class UnrecognizedMetaCommandException(cmd: String): IllegalStateException("Unrecognized command $cmd")
@@ -26,7 +27,7 @@ object StatementCompiler {
 }
 
 object REPL {
-    private val L = Logger("HOME DB", true)
+    private val L = Logger("Backchair DB", true)
 
     fun loop(): Int {
         print(PROMPT)
