@@ -3,6 +3,7 @@ package dev.sandwwraith
 import dev.sandwwraith.model.User
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 
 class StatementExecutorTest() {
@@ -18,5 +19,17 @@ class StatementExecutorTest() {
         users.map { Insert(it) }.forEach { StatementExecutor.execute(it) }
         val result = StatementExecutor.executeSelect0()
         assertEquals(users, result)
+    }
+
+    @Test
+    fun cantPutNegativeId() {
+        assertFails { StatementExecutor.execute(Insert(User(-1, "", ""))) }
+    }
+
+    @Test
+    fun cantPutTooLongString() {
+        val longString = buildString { repeat(300) {append('a')} }
+        val user = User(1, longString, longString)
+        assertFails { StatementExecutor.execute(Insert(user)) }
     }
 }

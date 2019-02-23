@@ -42,6 +42,7 @@ object RowSerializer {
 
         override fun encodeTaggedString(tag: Int, value: String) {
             check(tag > 0)
+            if (value.length > tag) throw SerializationException("Input string length (${value.length} exceeded maximum specified storage size($tag)")
             repeat(tag) {
                 val byteToWrite = if (it >= value.length) {
                     0

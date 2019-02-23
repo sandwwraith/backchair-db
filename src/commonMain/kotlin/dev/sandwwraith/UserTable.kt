@@ -66,6 +66,7 @@ object StatementExecutor {
 
     internal fun executeInsert(insert: Insert) {
         val user = insert.row as User
+        check(user.id > 0) { "Id must not be negative" }
         userTable.insert(user)
     }
 
