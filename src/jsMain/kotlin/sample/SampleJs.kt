@@ -17,3 +17,7 @@ actual fun readLine(): String? {
 actual fun currentTimeMillis(): Long {
     return Date.now().toLong()
 }
+
+actual fun printStackTrace(e: Exception) {
+    TODO("JS sucks")
+}

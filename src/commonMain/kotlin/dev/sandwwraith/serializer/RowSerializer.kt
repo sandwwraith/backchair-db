@@ -8,15 +8,19 @@ import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
 @Target(AnnotationTarget.PROPERTY)
 annotation class VarChar(val len: Int)
 
+internal fun SerialDescriptor.varCharSize(index: Int): Int {
+    return getElementAnnotations(index).filterIsInstance<VarChar>().singleOrNull()?.len
+        ?: if (getElementDescriptor(index).kind is PrimitiveKind.STRING) throw IllegalStateException(
+            "@VarChar must be specified on String field ${getElementName(
+                index
+            )}"
+        ) else -1
+}
+
 object RowSerializer {
     class BitEncoder(private val array: ByteArray, internal var offset: Int) : TaggedEncoder<Int>() {
         override fun SerialDescriptor.getTag(index: Int): Int {
-            return getElementAnnotations(index).filterIsInstance<VarChar>().singleOrNull()?.len
-                ?: if (getElementDescriptor(index).kind is PrimitiveKind.STRING) throw IllegalStateException(
-                    "@VarChar must be specified on String field ${getElementName(
-                        index
-                    )}"
-                ) else -1
+            return varCharSize(index)
 
         }
 
@@ -53,12 +57,7 @@ object RowSerializer {
 
     class BitDecoder(private val array: ByteArray, internal var offset: Int) : TaggedDecoder<Int>() {
         override fun SerialDescriptor.getTag(index: Int): Int {
-            return getElementAnnotations(index).filterIsInstance<VarChar>().singleOrNull()?.len
-                ?: if (getElementDescriptor(index).kind is PrimitiveKind.STRING) throw IllegalStateException(
-                    "@VarChar must be specified on String field ${getElementName(
-                        index
-                    )}"
-                ) else -1
+            return varCharSize(index)
 
         }
 

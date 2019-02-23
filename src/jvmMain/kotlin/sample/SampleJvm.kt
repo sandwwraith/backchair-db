@@ -13,3 +13,4 @@ actual object Platform {
 
 actual fun readLine(): String? = kotlin.io.readLine()
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+actual fun printStackTrace(e: Exception) = e.printStackTrace()
