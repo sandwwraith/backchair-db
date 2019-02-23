@@ -4,7 +4,7 @@ os: osx
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-  - rm -rf $HOME/.konan
+  - rm -rf $HOME/.konan/cache
 cache:
   directories:
     - $HOME/.gradle/caches/

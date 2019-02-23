@@ -2,6 +2,8 @@
 
 **A home-made database**
 
+[![Build Status](https://travis-ci.org/sandwwraith/backchair-db.svg?branch=master)](https://travis-ci.org/sandwwraith/backchair-db)
+
 ### Why?
 
 1. Because I can.
