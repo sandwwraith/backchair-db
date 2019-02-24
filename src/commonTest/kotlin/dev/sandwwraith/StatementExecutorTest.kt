@@ -1,35 +1,51 @@
 package dev.sandwwraith
 
 import dev.sandwwraith.model.User
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlinx.fs.core.Path
+import kotlinx.fs.core.delete
+import kotlinx.fs.core.exists
+import kotlin.test.*
 
+val users = listOf(
+    User(1, "1", "1"),
+    User(2, "2", "2"),
+    User(449, "John", "John@example.com"),
+    User(544453, "Richard K Dick", "mail+me@gmail.com"),
+    User(544457, "Richard K Dick", "mail+me+once@gmail.com")
+)
 
 class StatementExecutorTest() {
-    private val users = listOf(
-        User(1, "1", "1"),
-        User(2, "2", "2"),
-        User(449, "John", "John@example.com"),
-        User(544453, "Richard K Dick", "mail+me@gmail.com")
-    )
+
+    @AfterTest
+    fun cleanUp() {
+        val path = Path("usersTest.db")
+        if (path.exists()) path.delete()
+    }
+
+    @BeforeTest
+    fun init() {
+        executor = StatementExecutor("usersTest")
+    }
+
+    lateinit var executor: StatementExecutor
 
     @Test
     fun canPutAndRetrieveUsers() {
-        users.map { Insert(it) }.forEach { StatementExecutor.execute(it) }
-        val result = StatementExecutor.executeSelect0()
+
+        users.map { Insert(it) }.forEach { executor.execute(it) }
+        val result = executor.executeSelect0()
         assertEquals(users, result)
     }
 
     @Test
     fun cantPutNegativeId() {
-        assertFails { StatementExecutor.execute(Insert(User(-1, "", ""))) }
+        assertFails { executor.execute(Insert(User(-1, "", ""))) }
     }
 
     @Test
     fun cantPutTooLongString() {
         val longString = buildString { repeat(300) {append('a')} }
         val user = User(1, longString, longString)
-        assertFails { StatementExecutor.execute(Insert(user)) }
+        assertFails { executor.execute(Insert(user)) }
     }
 }

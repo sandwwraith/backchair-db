@@ -1,5 +1,6 @@
 package sample
 
+import kotlinx.fs.core.Path
 import kotlin.js.Date
 
 actual class Sample {
@@ -20,4 +21,8 @@ actual fun currentTimeMillis(): Long {
 
 actual fun printStackTrace(e: Exception) {
     TODO("JS sucks")
+}
+
+actual fun Path.fileLen(): Long {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }

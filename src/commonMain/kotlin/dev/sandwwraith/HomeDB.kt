@@ -1,7 +1,6 @@
 package dev.sandwwraith
 
 import dev.sandwwraith.StatementCompiler.compile
-import dev.sandwwraith.StatementExecutor.execute
 import dev.sandwwraith.model.User
 import sample.printStackTrace
 import sample.readLine
@@ -29,8 +28,8 @@ object StatementCompiler {
 }
 
 object REPL {
-    private val L = Logger("Backchair DB", true)
-
+    private val L = Logger("Backchair DB")
+    val executor: StatementExecutor by lazy { StatementExecutor("users") }
     fun loop(): Int {
         print(PROMPT)
         main@while (true) {
@@ -38,12 +37,15 @@ object REPL {
             try {
                 when {
                     cmd.isBlank() -> continue@main
-                    cmd == ".exit" -> return 0
+                    cmd == ".exit" -> {
+                        executor.userTable.closeDatabase()
+                        return 0
+                    }
                     cmd.startsWith(".") -> doMetaCommand(cmd)
                     else -> {
                         val stmt = compile(cmd)
                         L.debug { "Compiled statement: $stmt" }
-                        execute(stmt)
+                        executor.execute(stmt)
                     }
                 }
             } catch (e: Exception) {

@@ -2,7 +2,7 @@ package dev.sandwwraith
 
 import sample.currentTimeMillis
 
-class Logger(val name: String = "", val isDebug: Boolean = true) {
+class Logger(val name: String = "", val isDebug: Boolean = LOG_GLOBAL) {
     fun println(message: Any?) = kotlin.io.println(message)
 
     fun info(message: Any?) = println("$name @ ${formatTimeMillis(currentTimeMillis())} - $message")
@@ -15,3 +15,5 @@ class Logger(val name: String = "", val isDebug: Boolean = true) {
         return str.substring(0, dotPos) + "." + str.substring(dotPos, str.length)
     }
 }
+
+const val LOG_GLOBAL = true

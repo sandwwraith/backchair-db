@@ -1,20 +1,15 @@
 package dev.sandwwraith
 
 import dev.sandwwraith.model.User
+import dev.sandwwraith.pager.PAGE_SIZE
+import dev.sandwwraith.pager.Page
+import dev.sandwwraith.pager.Pager
 import dev.sandwwraith.serializer.RowSerializer
 import dev.sandwwraith.serializer.varCharSize
 import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.elementDescriptors
 import kotlin.native.concurrent.ThreadLocal
-
-const val PAGE_SIZE = 1024
-
-inline class Page(val array: ByteArray) {
-    companion object {
-        fun allocate(): Page = Page(ByteArray(PAGE_SIZE))
-    }
-}
 
 private fun entitySize(tableEntityDescriptor: SerialDescriptor): Int {
     val elementDescriptors = tableEntityDescriptor.elementDescriptors()
@@ -26,22 +21,18 @@ private fun entitySize(tableEntityDescriptor: SerialDescriptor): Int {
     } }.sum()
 }
 
-
-class UserTable {
+class UserTable private constructor(val databaseName: String, private val pager: Pager){
     private val L = Logger("TABLE USERS")
-    private val pages: MutableList<Page> = mutableListOf(Page.allocate())
+    private val rowSize = entitySize(User.serializer().descriptor)
 
     var numRows: Int = 0
         private set
 
-    private val rowSize = entitySize(User.serializer().descriptor)
     private val rowsPerPage = PAGE_SIZE / rowSize
-
 
     private fun rowSlot(rowNum: Int): Pair<Page, Int> {
         val pageIdx = rowNum / rowsPerPage
-        if (pageIdx >= pages.size) pages.add(Page.allocate())
-        val page = pages[pageIdx]
+        val page = pager.getPage(pageIdx)
         val offset = (rowNum % rowsPerPage) * rowSize
         L.debug { "Row $rowNum located at page#$pageIdx:$offset" }
         return page to offset
@@ -58,11 +49,23 @@ class UserTable {
         return User.serializer().deserialize(RowSerializer.BitDecoder(page.array, offset))
     }
 
+    fun closeDatabase() {
+        val pageMax = numRows / rowsPerPage
+        val leftover = numRows % rowsPerPage * rowSize
+        pager.flushAll(pageMax, leftover)
+    }
+
+    companion object {
+        fun openDatabase(name: String): UserTable {
+            val pager = Pager.open("$name.db")
+            return UserTable(name, pager).apply { numRows = pager.len.toInt() / rowSize }
+        }
+    }
+
 }
 
-@ThreadLocal // global table makes K/N complain sometimes
-object StatementExecutor {
-    private val userTable: UserTable = UserTable() // hardcoded for now
+class StatementExecutor(val tableName: String) {
+    val userTable: UserTable = UserTable.openDatabase(tableName) // hardcoded for now
 
     internal fun executeInsert(insert: Insert) {
         val user = insert.row as User
