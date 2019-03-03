@@ -23,7 +23,10 @@ class PersistenceTest {
         db.closeDatabase()
 
         db = UserTable.openDatabase(DBName)
-        val users1 = (0 until db.numRows).map { db.select(it) }
+        val c = db.start()
+        val users1 = (0 until db.numRows).map {
+            db.select(c).also { c.advance() }
+        }
         assertEquals(users, users1)
     }
 }

@@ -2,6 +2,7 @@ package dev.sandwwraith
 
 import dev.sandwwraith.StatementCompiler.compile
 import dev.sandwwraith.model.User
+import dev.sandwwraith.utils.Logger
 import sample.printStackTrace
 import sample.readLine
 
@@ -13,7 +14,7 @@ object StatementCompiler {
 
     internal fun compile(statement: String) = when {
         statement.startsWith("insert", ignoreCase = true) -> parseInsert(statement)
-        statement.startsWith("select", ignoreCase = true) -> Select()
+        statement.startsWith("select", ignoreCase = true) -> Select
         else -> throw UnrecognizedStatementException(statement)
     }
 

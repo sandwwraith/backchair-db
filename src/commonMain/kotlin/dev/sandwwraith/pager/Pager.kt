@@ -1,8 +1,7 @@
 package dev.sandwwraith.pager
 
-import dev.sandwwraith.Logger
+import dev.sandwwraith.utils.Logger
 import kotlinx.fs.core.*
-import kotlinx.io.core.discardExact
 import kotlinx.io.core.use
 import sample.fileLen
 

@@ -1,7 +1,7 @@
 package dev.sandwwraith.model
 
 import dev.sandwwraith.Row
-import dev.sandwwraith.serializer.VarChar
+import dev.sandwwraith.serialization.VarChar
 import kotlinx.serialization.Serializable
 
 @Serializable

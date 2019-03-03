@@ -4,33 +4,38 @@ import dev.sandwwraith.model.User
 import dev.sandwwraith.pager.PAGE_SIZE
 import dev.sandwwraith.pager.Page
 import dev.sandwwraith.pager.Pager
-import dev.sandwwraith.serializer.RowSerializer
-import dev.sandwwraith.serializer.varCharSize
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.elementDescriptors
-import kotlin.native.concurrent.ThreadLocal
+import dev.sandwwraith.serialization.RowSerializer
+import dev.sandwwraith.serialization.entitySize
+import dev.sandwwraith.utils.Logger
 
-private fun entitySize(tableEntityDescriptor: SerialDescriptor): Int {
-    val elementDescriptors = tableEntityDescriptor.elementDescriptors()
-    check(elementDescriptors.isNotEmpty())
-    return elementDescriptors.mapIndexed { i, it -> when(it.kind) {
-        is PrimitiveKind.INT -> 4
-        is PrimitiveKind.STRING -> tableEntityDescriptor.varCharSize(i)
-        else -> TODO()
-    } }.sum()
-}
-
-class UserTable private constructor(val databaseName: String, private val pager: Pager){
-    private val L = Logger("TABLE USERS")
-    private val rowSize = entitySize(User.serializer().descriptor)
-
-    var numRows: Int = 0
+class Cursor<E : Row>(private val table: Table<E>, currentRow: Int) {
+    var rowNum: Int = currentRow
         private set
 
+    var isEnd = table.numRows == currentRow
+        private set
+
+    fun advance() {
+        rowNum++
+        if (table.numRows == rowNum)
+            isEnd = true
+    }
+}
+
+interface Table<Entity : Row> {
+    val numRows: Int
+}
+
+class UserTable private constructor(val databaseName: String, private val pager: Pager) : Table<User> {
+    private val L = Logger("TABLE USERS")
+    private val rowSize = entitySize(User.serializer().descriptor)
     private val rowsPerPage = PAGE_SIZE / rowSize
 
-    private fun rowSlot(rowNum: Int): Pair<Page, Int> {
+    override var numRows: Int = 0
+        private set
+
+    private fun valueAt(cursor: Cursor<User>): Pair<Page, Int> {
+        val rowNum = cursor.rowNum
         val pageIdx = rowNum / rowsPerPage
         val page = pager.getPage(pageIdx)
         val offset = (rowNum % rowsPerPage) * rowSize
@@ -39,13 +44,13 @@ class UserTable private constructor(val databaseName: String, private val pager:
     }
 
     fun insert(user: User) {
-        val (page, offset) = rowSlot(numRows)
+        val (page, offset) = valueAt(end())
         User.serializer().serialize(RowSerializer.BitEncoder(page.array, offset), user)
         numRows++
     }
 
-    fun select(rowNum: Int): User {
-        val (page, offset) = rowSlot(rowNum)
+    fun select(cursor: Cursor<User>): User {
+        val (page, offset) = valueAt(cursor)
         return User.serializer().deserialize(RowSerializer.BitDecoder(page.array, offset))
     }
 
@@ -53,6 +58,14 @@ class UserTable private constructor(val databaseName: String, private val pager:
         val pageMax = numRows / rowsPerPage
         val leftover = numRows % rowsPerPage * rowSize
         pager.flushAll(pageMax, leftover)
+    }
+
+    fun start(): Cursor<User> {
+        return Cursor(this, 0)
+    }
+
+    fun end(): Cursor<User> {
+        return Cursor(this, numRows)
     }
 
     companion object {
@@ -64,32 +77,3 @@ class UserTable private constructor(val databaseName: String, private val pager:
 
 }
 
-class StatementExecutor(val tableName: String) {
-    val userTable: UserTable = UserTable.openDatabase(tableName) // hardcoded for now
-
-    internal fun executeInsert(insert: Insert) {
-        val user = insert.row as User
-        check(user.id > 0) { "Id must not be negative" }
-        userTable.insert(user)
-    }
-
-    internal fun executeSelect0(): List<User> {
-        val numRows = userTable.numRows
-        return (0 until numRows).map { userTable.select(it) }
-
-    }
-
-    internal fun executeSelect(select: Select) {
-        val numRows = userTable.numRows
-        val list = executeSelect0()
-        println("==SELECT $numRows FROM USERS==")
-        for (user in list) {
-            println(user)
-        }
-    }
-
-    internal fun execute(statement: Statement) = when(statement) {
-        is Insert -> executeInsert(statement)
-        is Select -> executeSelect(statement)
-    }
-}

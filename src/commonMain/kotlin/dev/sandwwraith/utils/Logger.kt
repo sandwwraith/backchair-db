@@ -1,4 +1,4 @@
-package dev.sandwwraith
+package dev.sandwwraith.utils
 
 import sample.currentTimeMillis
 

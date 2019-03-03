@@ -1,4 +1,4 @@
-package dev.sandwwraith.serializer
+package dev.sandwwraith.serialization
 
 import dev.sandwwraith.model.User
 import kotlin.test.Test

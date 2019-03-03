@@ -1,4 +1,4 @@
-package dev.sandwwraith.serializer
+package dev.sandwwraith.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.CompositeDecoder.Companion.READ_DONE
