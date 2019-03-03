@@ -1,8 +1,8 @@
 package dev.sandwwraith.backchairdb
 
-import kotlinx.fs.core.Path
-import kotlinx.fs.core.delete
-import kotlinx.fs.core.exists
+import kotlinx.files.Path
+import kotlinx.files.delete
+import kotlinx.files.exists
 import kotlin.test.*
 
 class PersistenceTest {

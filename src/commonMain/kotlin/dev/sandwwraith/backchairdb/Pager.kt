@@ -2,10 +2,18 @@ package dev.sandwwraith.backchairdb
 
 import dev.sandwwraith.utils.Logger
 import dev.sandwwraith.utils.fileLen
-import kotlinx.fs.core.*
+import kotlinx.files.FileSystems
+import kotlinx.files.Path
+import kotlinx.files.createFile
+import kotlinx.files.exists
+import kotlinx.io.core.Input
+import kotlinx.io.core.Output
 import kotlinx.io.core.use
 
 const val PAGE_SIZE = 1024
+
+fun Path.newOutputStream(): Output = FileSystems.Default.openOutput(this)
+fun Path.newInputStream(): Input = FileSystems.Default.openInput(this)
 
 inline class Page(val array: ByteArray) {
     companion object {
@@ -58,7 +66,7 @@ class Pager private constructor(private val file: Path, internal val len: Long) 
         private val L = Logger("DB PAGER")
 
         fun open(fileName: String): Pager {
-            val path = Paths.getPath(fileName)
+            val path = Path(fileName)
             if (!path.exists()) path.createFile()
             val len = path.fileLen()
             L.debug { "Creating a pager with File $path and size of $len" }

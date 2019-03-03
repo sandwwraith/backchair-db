@@ -1,7 +1,7 @@
 package dev.sandwwraith.utils
 
 import dev.sandwwraith.backchairdb.REPL
-import kotlinx.fs.core.Path
+import kotlinx.files.Path
 
 expect object Platform {
     val name: String

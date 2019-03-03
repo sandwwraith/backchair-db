@@ -1,8 +1,8 @@
 package dev.sandwwraith.utils
 
-import kotlinx.fs.core.Path
-import kotlinx.fs.core.exists
-import kotlinx.fs.core.internal.UnixPath
+import kotlinx.files.Path
+import kotlinx.files.UnixPath
+import kotlinx.files.exists
 import kotlinx.io.core.ExperimentalIoApi
 import kotlinx.io.errors.IOException
 import kotlinx.io.errors.PosixException

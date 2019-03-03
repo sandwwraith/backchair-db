@@ -1,6 +1,6 @@
 package dev.sandwwraith.utils
 
-import kotlinx.fs.core.Path
+import kotlinx.files.Path
 import kotlin.js.Date
 
 actual object Platform {
