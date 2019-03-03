@@ -1,7 +1,5 @@
 package dev.sandwwraith.utils
 
-import sample.currentTimeMillis
-
 class Logger(val name: String = "", val isDebug: Boolean = LOG_GLOBAL) {
     fun println(message: Any?) = kotlin.io.println(message)
 

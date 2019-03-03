@@ -7,7 +7,7 @@ repositories {
     maven { url "https://kotlin.bintray.com/kotlinx" }
     mavenLocal()
 }
-group 'com.example'
+group 'dev.sandwwraith'
 version '0.0.1'
 
 apply plugin: 'maven-publish'
@@ -85,11 +85,11 @@ kotlin {
 
 task runJvm(dependsOn: 'compileKotlinJvm', type: JavaExec) {
     classpath = kotlin.jvm().compilations["main"].compileDependencyFiles + kotlin.jvm().compilations["main"].runtimeDependencyFiles + kotlin.jvm().compilations["main"].output.allOutputs
-    main = 'sample.SampleKt'
+    main = 'dev.sandwwraith.utils.PlatformKt'
     standardInput = System.in
 }
 
 task runNative(dependsOn: 'linkDebugExecutableMacos', type: Exec) {
-    commandLine 'build/bin/macos/debugExecutable/home_db.kexe'
+    commandLine 'build/bin/macos/debugExecutable/backchair-db.kexe'
     standardInput = System.in
 }

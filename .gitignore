@@ -17,3 +17,5 @@ gradle-app.setting
 *.rar
 hs_err_pid*
 !gradle-wrapper.jar
+
+*.db
